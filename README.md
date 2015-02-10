@@ -6,6 +6,7 @@ Here is a simple example:
 ```csharp
 public class MyFilter
 {
+   [MapToPropertey("Name")]
    public QueryFilterString Name { get; set; }
 
    public MyFilter()
