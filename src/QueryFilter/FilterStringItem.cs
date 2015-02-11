@@ -21,6 +21,11 @@ namespace QueryFilter
         public string Value { get; set; }
 
         /// <summary>
+        /// Gets or sets whether to ignore the case of the string when filtering.
+        /// </summary>
+        public bool IgnoreCase { get; set; }
+
+        /// <summary>
         /// Gets or sets the type of filter to perform.
         /// </summary>
         public FilterStringEnum Operator { get; set; }
@@ -34,12 +39,15 @@ namespace QueryFilter
         /// </summary>
         /// <param name="value">The value to filter on.</param>
         /// <param name="rangeType">The type of filter to perform.</param>
+        /// <param name="ignoreCase">Whether to ignore the case of the string when filtering.</param>
         public FilterStringItem(
             string value = null, 
-            FilterStringEnum rangeType = FilterStringEnum.EqualTo)
+            FilterStringEnum rangeType = FilterStringEnum.EqualTo,
+            bool ignoreCase = false)
         {
             Value = value;
             Operator = rangeType;
+            IgnoreCase = ignoreCase;
         }
 
         #endregion

@@ -87,80 +87,88 @@ namespace QueryFilter
         /// Adds a new value to filter on with an EqualTo check and returns this object.
         /// </summary>
         /// <param name="value">The value to filter on with an EqualTo check.</param>
+        /// <param name="ignoreCase">Whether to ignore the case of the string when filtering.</param>
         /// <returns>FilterStringItem.</returns>
-        public FilterStringItem EqualTo(string value)
+        public FilterStringItem EqualTo(string value, bool ignoreCase = false)
         {
-            return Add(value, FilterStringEnum.EqualTo);
+            return Add(value, FilterStringEnum.EqualTo, ignoreCase);
         }
 
         /// <summary>
         /// Adds a new value to filter on with an Not EqualTo check and returns this object.
         /// </summary>
         /// <param name="value">The value to filter on with an Not EqualTo check.</param>
+        /// <param name="ignoreCase">Whether to ignore the case of the string when filtering.</param>
         /// <returns>FilterStringItem.</returns>
-        public FilterStringItem NotEqualTo(string value)
+        public FilterStringItem NotEqualTo(string value, bool ignoreCase = false)
         {
-            return Add(value, FilterStringEnum.NotEqualTo);
+            return Add(value, FilterStringEnum.NotEqualTo, ignoreCase);
         }
 
         /// <summary>
         /// Adds a new value to filter on with a StartsWith check and returns this object.
         /// </summary>
         /// <param name="value">The value to filter on with a StartsWith check.</param>
+        /// <param name="ignoreCase">Whether to ignore the case of the string when filtering.</param>
         /// <returns>FilterStringItem.</returns>
-        public FilterStringItem StartsWith(string value)
+        public FilterStringItem StartsWith(string value, bool ignoreCase = false)
         {
-            return Add(value, FilterStringEnum.StartsWith);
+            return Add(value, FilterStringEnum.StartsWith, ignoreCase);
         }
 
         /// <summary>
         /// Adds a new value to filter on with a NotStartsWith check and returns this object.
         /// </summary>
         /// <param name="value">The value to filter on with a NotStartsWith check.</param>
+        /// <param name="ignoreCase">Whether to ignore the case of the string when filtering.</param>
         /// <returns>FilterStringItem.</returns>
-        public FilterStringItem NotStartsWith(string value)
+        public FilterStringItem NotStartsWith(string value, bool ignoreCase = false)
         {
-            return Add(value, FilterStringEnum.NotStartsWith);
+            return Add(value, FilterStringEnum.NotStartsWith, ignoreCase);
         }
 
         /// <summary>
         /// Adds a new value to filter on with a Contains check and returns this object.
         /// </summary>
         /// <param name="value">The value to filter on with a Contains check.</param>
+        /// <param name="ignoreCase">Whether to ignore the case of the string when filtering.</param>
         /// <returns>FilterStringItem.</returns>
-        public FilterStringItem Contains(string value)
+        public FilterStringItem Contains(string value, bool ignoreCase = false)
         {
-            return Add(value, FilterStringEnum.Contains);
+            return Add(value, FilterStringEnum.Contains, ignoreCase);
         }
 
         /// <summary>
         /// Adds a new value to filter on with a NotContains check and returns this object.
         /// </summary>
         /// <param name="value">The value to filter on with a Contains check.</param>
+        /// <param name="ignoreCase">Whether to ignore the case of the string when filtering.</param>
         /// <returns>FilterStringItem.</returns>
-        public FilterStringItem NotContains(string value)
+        public FilterStringItem NotContains(string value, bool ignoreCase = false)
         {
-            return Add(value, FilterStringEnum.NotContains);
+            return Add(value, FilterStringEnum.NotContains, ignoreCase);
         }
 
         /// <summary>
         /// Adds a new value to filter on with an EndsWith check and returns this object.
         /// </summary>
         /// <param name="value">The value to filter on with an EndsWith check.</param>
+        /// <param name="ignoreCase">Whether to ignore the case of the string when filtering.</param>
         /// <returns>FilterStringItem.</returns>
-        public FilterStringItem EndsWith(string value)
+        public FilterStringItem EndsWith(string value, bool ignoreCase = false)
         {
-            return Add(value, FilterStringEnum.EndsWith);
+            return Add(value, FilterStringEnum.EndsWith, ignoreCase);
         }
 
         /// <summary>
         /// Adds a new value to filter on with a NotEndsWith check and returns this object.
         /// </summary>
         /// <param name="value">The value to filter on with a NotEndsWith check.</param>
+        /// <param name="ignoreCase">Whether to ignore the case of the string when filtering.</param>
         /// <returns>FilterStringItem.</returns>
-        public FilterStringItem NotEndsWith(string value)
+        public FilterStringItem NotEndsWith(string value, bool ignoreCase = false)
         {
-            return Add(value, FilterStringEnum.NotEndsWith);
+            return Add(value, FilterStringEnum.NotEndsWith, ignoreCase);
         }
 
         #endregion
@@ -173,9 +181,9 @@ namespace QueryFilter
         /// <param name="value">The value to filter to check with.</param>
         /// <param name="type">The type of filter to perform.</param>
         /// <returns>FilterStringItem.</returns>
-        private FilterStringItem Add(string value, FilterStringEnum type)
+        private FilterStringItem Add(string value, FilterStringEnum type, bool ignoreCase)
         {
-            var item = new FilterStringItem(value, type);
+            var item = new FilterStringItem(value, type, ignoreCase);
             Filters.Add(item);
             return item;
         }

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -29,10 +30,12 @@ namespace QueryFilter
         /// <summary>
         /// Returns a new instance of QueryFilterBuilder for convienence only.
         /// </summary>
+        /// <param name="isCaseSensitive">True if the result needs to worry about case; false otherwise.</param>
         /// <returns>QueryFilterBuilder.</returns>
-        public static QueryFilterBuilder<TType, TFilter> New()
+        /// <remarks>If this call is for EF and the database doesn't care about case, then this can be false.</remarks>
+        public static QueryFilterBuilder<TType, TFilter> New(bool isCaseSensitive = true)
         {
-            return new QueryFilterBuilder<TType, TFilter>();
+            return new QueryFilterBuilder<TType, TFilter>(isCaseSensitive);
         }
 
         #endregion
@@ -42,6 +45,7 @@ namespace QueryFilter
         private readonly IDictionary<IFilterItem, Expression<Func<TType, bool>>> _expressions =
             new Dictionary<IFilterItem, Expression<Func<TType, bool>>>();
         private readonly IList<IFilterItem> _expressionsProcessed = new List<IFilterItem>();
+        private readonly bool _isCaseSensitive;
 
         #endregion
 
@@ -59,7 +63,9 @@ namespace QueryFilter
             Expression<Func<TType, TProperty>> property,
             IFilterCommand filter)
         {
-            var entityPropertyName = ((MemberExpression) property.Body).Member.Name;
+            var entityPropertyName = property.Body.ToString();
+            // Get rid of lambda reference
+            entityPropertyName = entityPropertyName.Substring(entityPropertyName.IndexOf('.') + 1);
             BuildExpressionsForEntityProperty(entityPropertyName, filter);
             return this;
         }
@@ -86,6 +92,20 @@ namespace QueryFilter
         public void Clear()
         {
             _expressions.Clear();
+        }
+
+        #endregion
+
+        #region << Constructors >>
+
+        /// <summary>
+        /// Constructor that initializes values.
+        /// </summary>
+        /// <param name="isCaseSensitive">True if the result needs to worry about case; false otherwise.</param>
+        /// <remarks>If this call is for EF and the database doesn't care about case, then this can be false.</remarks>
+        public QueryFilterBuilder(bool isCaseSensitive = false)
+        {
+            _isCaseSensitive = isCaseSensitive;
         }
 
         #endregion
@@ -131,6 +151,10 @@ namespace QueryFilter
         /// <param name="command">The instructions on which expression to build.</param>
         private void BuildExpressionsForEntityProperty(string entityPropertyName, IFilterCommand command)
         {
+            if (entityPropertyName == null)
+            {
+                throw new ArgumentNullException("entityPropertyName");
+            }
             if (command == null || command.TotalItems == 0)
             {
                 return;
@@ -138,7 +162,14 @@ namespace QueryFilter
             foreach (var item in command.FilterItems)
             {
                 ParameterExpression entityParam = Expression.Parameter(typeof (TType), "a");
-                var leftExpression = Expression.PropertyOrField(entityParam, entityPropertyName);
+
+                Expression body = entityParam;
+                foreach (var member in entityPropertyName.Split('.'))
+                {
+                    body = Expression.PropertyOrField(body, member);
+                }
+
+                var leftExpression = body; //Expression.PropertyOrField(entityParam, body);
 
                 switch (command.CommandType)
                 {
@@ -254,7 +285,20 @@ namespace QueryFilter
             Expression leftExpression,
             FilterStringItem item)
         {
-            Expression rightExpression = Expression.Constant(item.Value, typeof (string));
+            Expression rightExpression;
+            if (_isCaseSensitive && item.IgnoreCase)
+            {
+                leftExpression = Expression.Call(
+                    leftExpression,
+                    "ToLower",
+                    new Type[0],
+                    Expression.Constant(CultureInfo.InvariantCulture, typeof (CultureInfo)));
+                rightExpression = Expression.Constant(item.Value == null ? null : item.Value.ToLower(), typeof(string));
+            }
+            else
+            {
+                rightExpression = Expression.Constant(item.Value, typeof(string));
+            }
 
             Expression checkExp;
             switch (item.Operator)
