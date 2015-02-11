@@ -34,7 +34,7 @@ Done!
 
 ## Initializing FilterString/Range/Equatable
 
-Unfortunately, I haven't come up with a good way around being forced to new up each filter property n the constructor before you start using it.  If someone has a clever idea, I'm all ears! In the meantime, you will just have to new up each property you declare in the constructor.  (Note: Making these a struct won't work because they all store a list of FilterItems internally...)
+Unfortunately, I haven't come up with a good way around being forced to new up each filter property in the constructor before you start using it.  If someone has a clever idea, I'm all ears! In the meantime, you will just have to new up each property you declare in the constructor.  (Note: Making these a struct won't work because they all store a list of FilterItems internally...)
 
 ## MapToProperty
 
