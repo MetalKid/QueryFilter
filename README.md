@@ -8,7 +8,7 @@ public class SomeFilter
    [MapToProperty]
    public FilterString Name { get; set; }
 
-   public MyFilter()
+   public SomeFilter()
    {
       Name = new FilterString();
    }
@@ -18,7 +18,7 @@ public class SomeFilter
 Now if you want a query where Name contains "x" and does not startswith "y":
 
 ```csharp
-var filter = new MyFilter();
+var filter = new SomeFilter();
 filter.Name.Contains("x");
 filter.Name.NotStartsWith("y");
 ```
@@ -27,7 +27,7 @@ Done!  Now all you have to do is pass it into the query builder:
 
 ```csharp
 IQueryable<MyEntity> query = ctx.MyEntities;
-query = QueryFilterBuilder<MyEntity, MyFilter>.New().Build(query, filter);
+query = QueryFilterBuilder<MyEntity, SomeFilter>.New().Build(query, filter);
 ```
 
 Done! 
