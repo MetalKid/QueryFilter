@@ -169,7 +169,7 @@ namespace QueryFilter
                     body = Expression.PropertyOrField(body, member);
                 }
 
-                var leftExpression = body; //Expression.PropertyOrField(entityParam, body);
+                var leftExpression = body;
 
                 switch (command.CommandType)
                 {
@@ -196,7 +196,7 @@ namespace QueryFilter
                         break;
                     default:
                         throw new NotImplementedException(
-                            "FilterCommandTpe '" + command.CommandType + " not implemented.");
+                            "FilterCommandType '" + command.CommandType + " not implemented.");
                 }
             }
         }
