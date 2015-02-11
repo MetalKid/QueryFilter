@@ -27,7 +27,7 @@ Done!  Now all you have to do is pass it into the query builder:
 
 ```csharp
 IQueryable<MyEntity> query = ctx.MyEntities;
-query = QueryFilterBuilder.Build(query, filter);
+query = QueryFilterBuilder<MyEntity, MyFilter>.New().Build(query, filter);
 ```
 
 Done! 
@@ -85,7 +85,7 @@ filter.Name.NotStartsWith("Y");
 filter.Name.EndsWith("k");
 filter.Name.NotEndsWith("e");
 
-query = QueryFilterBuilder.Build(query, filter);
+query = QueryFilterBuilder<MyEntity, MyFilter>.New().Build(query, filter);
 ```
 
 Just for laughs, here is the SQL EF produced from applying these lines of code:
@@ -118,7 +118,7 @@ filter.Speed.LessThanOrEqualTo(20);
 filter.Speed.GreaterThan(-6);
 filter.Speed.GreaterThanOrEqualTo(5);
 
-query = QueryFilterBuilder.Build(query, filter);
+query = QueryFilterBuilder<MyEntity, MyFilter>.New().Build(query, filter);
 ```
 
 If the target entity property is nullable, the value will be converted for you automatically.  Thus, you are allowed to enter:
@@ -147,7 +147,7 @@ var filter = new MyFilter();
 filter.HasImage.EqualTo(true);
 filter.HasImage.NotEqualTo(false);
 
-query = QueryFilterBuilder.Build(query, filter);
+query = QueryFilterBuilder<MyEntity, MyFilter>.New().Build(query, filter);
 ```
 
 Just for laughs, here is the SQL EF produced from applying these lines of code (with nullable int in the database):
@@ -162,21 +162,21 @@ FilterGroups are how you can mix ORs, ANDs, and groups ( ) into your queries.  I
 
 ```csharp
 filter.AddGroups(
-                FilterGroup.New(
-                    FilterGroupTypeEnum.And,
-                    filter.Name.Contains("Leo"),
-                    filter.Name.Contains("mon")
-                ),
-                FilterGroup.New(
-                    FilterGroupTypeEnum.Or,
-                    filter.Name.EqualTo("Agumon"),
-                    FilterGroup.New(
-                        FilterGroupTypeEnum.And,
-                        filter.Name.Contains("Tort"),
-                        filter.Name.Contains("mon")
-                    )
-                )
-            );
+    FilterGroup.New(
+        FilterGroupTypeEnum.And,
+        filter.Name.Contains("Leo"),
+        filter.Name.Contains("mon")
+    ),
+    FilterGroup.New(
+        FilterGroupTypeEnum.Or,
+        filter.Name.EqualTo("Agumon"),
+        FilterGroup.New(
+            FilterGroupTypeEnum.And,
+            filter.Name.Contains("Tort"),
+            filter.Name.Contains("mon")
+        )
+    )
+);
 ```
 
 This reads: (Leo and Mon) Or (Agumon Or (Tort And Mon)).  Each new group at the top level determines the And/Or to come before it along with its siblings.  If you needed an And outside and Or inside, you'd have to do a Double FilterGroup.New() with the corresponding FilterGroupTypeEnum values.
@@ -198,7 +198,7 @@ If you have a situation where you want to filter on another table from the same 
 Should an odd situation arise or you just hate using the MapToPropertyAttribute, you can specify the maps directly yourself.  Here is what the Name property would look like:
 
 ```csharp
-query = QueryFilterBuilder<MyEntity, SomeFilter>.New()
+query = QueryFilterBuilder<MyEntity, MyFilter>.New()
                 .AddCustomMap(a => a.Name, filter.Name)
                 .Build(query, filter);
 ```
