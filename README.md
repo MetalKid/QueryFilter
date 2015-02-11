@@ -328,6 +328,6 @@ Here is the JSON representation of that previous big grouping with Name values:
 }
 }}
 ```
-
+One thing to note.  The Operator can use "EqualTo" instead of 1 and it parses just fine.
 
 That's it!  This doesn't have any support for sub lists, so let me know if you want me to experiment with something like that!  Thanks!
