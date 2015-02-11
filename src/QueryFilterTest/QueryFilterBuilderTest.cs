@@ -808,7 +808,6 @@ namespace QueryFilterTest
 
         #region << GroupFilter Tests >>
 
-
         [TestMethod]
         public void GroupFilter_EqualTo_2()
         {
@@ -888,6 +887,28 @@ namespace QueryFilterTest
             Assert.AreEqual(1, results.Count, "Only 1 item was expected.");
         }
 
+        [TestMethod]
+        public void ComplexFilter2_EqualTo_1()
+        {
+            // Arrange
+            IList<ComplexEntity> entities = new List<ComplexEntity>()
+            {
+                new ComplexEntity {Test = "A", Entity = new ComplexEntity2 { A = "1"}},
+                new ComplexEntity {Test = "B", Entity = new ComplexEntity2 { A = "2"}},
+                new ComplexEntity {Test = "C", Entity = new ComplexEntity2 { A = "3"}},
+            };
+            var input = entities.AsQueryable();
+            var filter = new ComplexFilter2();
+            filter.Test.EqualTo("A");
+            filter.A.EqualTo("1");
+
+            // Act
+            var results = QueryFilterBuilder<ComplexEntity, ComplexFilter2>.New()
+                .Build(input, filter).ToList();
+
+            // Assert
+            Assert.AreEqual(1, results.Count, "Only 1 item was expected.");
+        }
         #endregion
 
         #region << Private Classes >>
@@ -915,7 +936,20 @@ namespace QueryFilterTest
                 A = new FilterString();
             }
         }
+        private class ComplexFilter2
+        {
+            [MapToProperty]
+            public FilterString Test { get; set; }
 
+            [MapToProperty("Entity.A")]
+            public FilterString A { get; set; }
+
+            public ComplexFilter2()
+            {
+                Test = new FilterString();
+                A = new FilterString();
+            }
+        }
         private class CustomMapEntity
         {
             public string Test { get; set; }

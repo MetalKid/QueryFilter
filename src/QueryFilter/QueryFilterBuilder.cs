@@ -140,10 +140,6 @@ namespace QueryFilter
                     continue;
                 }
                 var value = prop.GetValue(filter, null) as IFilterCommand;
-                if (value == null || value.TotalItems == 0)
-                {
-                    continue;
-                }
 
                 string entityPropertyName = attr.PropertyName ?? prop.Name;
                 BuildExpressionsForEntityProperty(entityPropertyName, value);
