@@ -3,7 +3,7 @@ QueryFilter provides a simple way of providing complex filtering on IQueryable<>
 ## Basic Usage
 
 ```csharp
-public class MyFilter
+public class SomeFilter
 {
    [MapToProperty]
    public FilterString Name { get; set; }
@@ -38,10 +38,10 @@ Unfortunately, I haven't come up with a good way around being forced to new up e
 
 ## MapToPropertyAttribute
 
-In order to determine which property a filter is for on the entity side, the MapToProperty attribute is used.  If not value is provided, QueryFilter assumes the name of the property on the filter is the same name on the entity.  Otherwise, you can pass in a string name of the entity to map to.  If you have a complex property (i.e. Parent.Child.A), then you could pass in "Child.A" and the path will be parsed for you.  If you have some sort of complex scenario, then you can use the AddCustomMapping call discussed later on.
+In order to determine which property a filter is for on the entity side, the MapToProperty attribute is used.  If no value is provided, QueryFilter assumes the name of the property on the filter is the same name on the entity.  Otherwise, you can pass in a string name of the entity to map to.  If you have a complex property (i.e. Parent.Child.A), then you could pass in "Child.A" and the path will be parsed for you.  If you have some sort of complex scenario, then you can use the AddCustomMapping call discussed later on.
 
 ```csharp
-public class SomeFilter
+public class MyFilter
 {
    [MapToProperty("SomeOtherName")]
    public FilterString Name { get; set; }
@@ -91,7 +91,9 @@ query = QueryFilterBuilder<MyEntity, MyFilter>.New().Build(query, filter);
 Just for laughs, here is the SQL EF produced from applying these lines of code:
 
 ```csharp
-WHERE (N'a' = [Extent1].[Name]) AND (N'9' <> [Extent1].[Name]) AND ([Extent1].[Name] LIKE N'%x%') AND ( NOT ([Extent1].[Name] LIKE N'%z%')) AND ([Extent1].[Name] LIKE N'U%') AND ( NOT ([Extent1].[Name] LIKE N'Y%')) AND ([Extent1].[Name] LIKE N'%k') AND ( NOT ([Extent1].[Name] LIKE N'%e'))
+WHERE (N'a' = [Extent1].[Name]) AND (N'9' <> [Extent1].[Name]) AND ([Extent1].[Name] LIKE N'%x%') AND ( NOT ([Extent1].[Name]
+LIKE N'%z%')) AND ([Extent1].[Name] LIKE N'U%') AND ( NOT ([Extent1].[Name] LIKE N'Y%')) AND ([Extent1].[Name] LIKE N'%k')
+AND ( NOT ([Extent1].[Name] LIKE N'%e'))
 ```
 
 ## FilterRange
@@ -130,7 +132,8 @@ However, if it is not nullable, the default(T) will be used instead (i.e. 0), so
 Just for laughs, here is the SQL EF produced from applying these lines of code (with nullable int in the database):
 
 ```csharp
-WHERE (1 = [Extent1].[Speed]) AND ( NOT ((0 = [Extent1].[Speed]) AND ([Extent1].[Speed] IS NOT NULL))) AND ([Extent1].[Speed] < 10) AND ([Extent1].[Speed] <= 20) AND ([Extent1].[Speed] > -6) AND ([Extent1].[Speed] >= 5)
+WHERE (1 = [Extent1].[Speed]) AND ( NOT ((0 = [Extent1].[Speed]) AND ([Extent1].[Speed] IS NOT NULL))) AND ([Extent1].[Speed]
+< 10) AND ([Extent1].[Speed] <= 20) AND ([Extent1].[Speed] > -6) AND ([Extent1].[Speed] >= 5)
 ```
 
 ## FilterEquatable
@@ -184,7 +187,8 @@ This reads: (Leo and Mon) Or (Agumon Or (Tort And Mon)).  Each new group at the 
 Here is the SQL it produces:
 
 ```csharp
-WHERE (([Extent1].[Name] LIKE N'%Leo%') AND ([Extent1].[Name] LIKE N'%mon%')) OR (N'Agumon' = [Extent1].[Name]) OR (([Extent1].[Name] LIKE N'%Tort%') AND ([Extent1].[Name] LIKE N'%mon%'))
+WHERE (([Extent1].[Name] LIKE N'%Leo%') AND ([Extent1].[Name] LIKE N'%mon%')) OR (N'Agumon' = [Extent1].[Name]) OR
+(([Extent1].[Name] LIKE N'%Tort%') AND ([Extent1].[Name] LIKE N'%mon%'))
 ```
 
 In order to figure out if a filter has any groups, it must implement the IFilterGroup interface.  Otherwise, I have no other way of pulling in groups since they are stored at the filter level in one place across all properties.  You don't have to stick to the same Filter type when Or/Anding them together.
