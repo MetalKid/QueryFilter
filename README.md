@@ -150,7 +150,7 @@ filter.HasImage.NotEqualTo(false);
 query = QueryFilterBuilder<MyEntity, MyFilter>.New().Build(query, filter);
 ```
 
-Just for laughs, here is the SQL EF produced from applying these lines of code (with nullable int in the database):
+Just for laughs, here is the SQL EF produced from applying these lines of code (with nullable bit in the database):
 
 ```csharp
 WHERE (1 = [Extent1].[HasImage]) AND ( NOT ((0 = [Extent1].[HasImage]) AND ([Extent1].[HasImage] IS NOT NULL)))
