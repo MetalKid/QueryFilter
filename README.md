@@ -205,4 +205,129 @@ query = QueryFilterBuilder<MyEntity, MyFilter>.New()
 
 AddCustomMap can be chained, so you can add every filter reference by hand here and have the lamda support (no hard-coded strings).  In the end, the MapToProperty attribute is doing the same work as AddCustomMap for you.
 
+## JSON
+
+Here is the JSON representation of that previous big grouping with Name values:
+
+```csharp
+{
+  "Name": {
+    "Filters": [
+      {
+        "Value": "Leo",
+        "IgnoreCase": false,
+        "Operator": 3
+      },
+      {
+        "Value": "mon",
+        "IgnoreCase": false,
+        "Operator": 3
+      },
+      {
+        "Value": "Agumon",
+        "IgnoreCase": false,
+        "Operator": 1
+      },
+      {
+        "Value": "Tort",
+        "IgnoreCase": false,
+        "Operator": 3
+      },
+      {
+        "Value": "mon",
+        "IgnoreCase": false,
+        "Operator": 3
+      }
+    ],
+    "Value": null,
+    "TotalItems": 5,
+    "CommandType": 4,
+    "FilterItems": [
+      {
+        "Value": "Leo",
+        "IgnoreCase": false,
+        "Operator": 3
+      },
+      {
+        "Value": "mon",
+        "IgnoreCase": false,
+        "Operator": 3
+      },
+      {
+        "Value": "Agumon",
+        "IgnoreCase": false,
+        "Operator": 1
+      },
+      {
+        "Value": "Tort",
+        "IgnoreCase": false,
+        "Operator": 3
+      },
+      {
+        "Value": "mon",
+        "IgnoreCase": false,
+        "Operator": 3
+      }
+    ]
+  },
+  "HasImage": {
+    "Filters": [],
+    "Value": null,
+    "TotalItems": 0,
+    "CommandType": 3,
+    "FilterItems": []
+  },
+  "FilterGroups": [
+    {
+      "GroupType": 1,
+      "FilterItems": [
+        {
+          "Value": "Leo",
+          "IgnoreCase": false,
+          "Operator": 3
+        },
+        {
+          "Value": "mon",
+          "IgnoreCase": false,
+          "Operator": 3
+        }
+      ],
+      "TotalItems": 2,
+      "CommandType": 1
+    },
+    {
+      "GroupType": 2,
+      "FilterItems": [
+        {
+          "Value": "Agumon",
+          "IgnoreCase": false,
+          "Operator": 1
+        },
+        {
+          "GroupType": 1,
+          "FilterItems": [
+            {
+              "Value": "Tort",
+              "IgnoreCase": false,
+              "Operator": 3
+            },
+            {
+              "Value": "mon",
+              "IgnoreCase": false,
+              "Operator": 3
+            }
+          ],
+          "TotalItems": 2,
+          "CommandType": 1
+        }
+      ],
+      "TotalItems": 2,
+      "CommandType": 1
+    }
+  ]
+}
+}}
+```
+
+
 That's it!  This doesn't have any support for sub lists, so let me know if you want me to experiment with something like that!  Thanks!
