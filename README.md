@@ -49,6 +49,9 @@ public class SomeFilter
    [MapToProperty]
    public FilterRange<int> Speed { get; set; }
 
+   [MapToProperty]
+   public FilterEquatable<bool?> HasImage { get; set; }
+
    [MapToProperty("Child.AnotherProperty")]
    public FilterString AnotherProperty { get; set; }
 }
@@ -118,9 +121,11 @@ filter.Speed.GreaterThanOrEqualTo(5);
 query = QueryFilterBuilder.Build(query, filter);
 ```
 
-If the target entity is nullable, the value will be converted for you automatically.  Thus, you are allowed to enter:
-
-filter.Speed.EqualTo(null);  However, if it is not nullable, the default(T) will be used instead (i.e. 0), so you could have unintended consequences if you aren't careful.
+If the target entity property is nullable, the value will be converted for you automatically.  Thus, you are allowed to enter:
+```csharp
+filter.Speed.EqualTo(null);  
+```
+However, if it is not nullable, the default(T) will be used instead (i.e. 0), so you could have unintended consequences if you aren't careful.
 
 Just for laughs, here is the SQL EF produced from applying these lines of code (with nullable int in the database):
 
@@ -135,10 +140,69 @@ FilterEquatable allows you to filter in the following ways:
 * EqualTo
 * NotEqualTo
 
+Equatable is meant for any types that really only support equal to or not (i.e. bool).  Here are a few examples:
+
+```csharp
+var filter = new MyFilter();
+filter.HasImage.EqualTo(true);
+filter.HasImage.NotEqualTo(false);
+
+query = QueryFilterBuilder.Build(query, filter);
+```
+
+Just for laughs, here is the SQL EF produced from applying these lines of code (with nullable int in the database):
+
+```csharp
+WHERE (1 = [Extent1].[HasImage]) AND ( NOT ((0 = [Extent1].[HasImage]) AND ([Extent1].[HasImage] IS NOT NULL)))
+```
+
 ## FilterGroup and IFilterGroup
 
+FilterGroups are how you can mix ORs, ANDs, and groups ( ) into your queries.  I added a helper method called "AddGroups" that took a param array of FilterGroup.  Here are a few examples:
+
+```csharp
+filter.AddGroups(
+                FilterGroup.New(
+                    FilterGroupTypeEnum.And,
+                    filter.Name.Contains("Leo"),
+                    filter.Name.Contains("mon")
+                ),
+                FilterGroup.New(
+                    FilterGroupTypeEnum.Or,
+                    filter.Name.EqualTo("Agumon"),
+                    FilterGroup.New(
+                        FilterGroupTypeEnum.And,
+                        filter.Name.Contains("Tort"),
+                        filter.Name.Contains("mon")
+                    )
+                )
+            );
+```
+
+This reads: (Leo and Mon) Or (Agumon Or (Tort And Mon)).  Each new group at the top level determines the And/Or to come before it along with its siblings.  If you needed an And outside and Or inside, you'd have to do a Double FilterGroup.New() with the corresponding FilterGroupTypeEnum values.
+
+Here is the SQL it produces:
+
+```csharp
+WHERE (([Extent1].[Name] LIKE N'%Leo%') AND ([Extent1].[Name] LIKE N'%mon%')) OR (N'Agumon' = [Extent1].[Name]) OR (([Extent1].[Name] LIKE N'%Tort%') AND ([Extent1].[Name] LIKE N'%mon%'))
+```
+
+In order to figure out if a filter has any groups, it must implement the IFilterGroup interface.  Otherwise, I have no other way of pulling in groups since they are stored at the filter level in one place across all properties.  You don't have to stick to the same Filter type when Or/Anding them together.
 
 ## Complex Types
 
+If you have a situation where you want to filter on another table from the same filter, you can use the "Child.Property" syntax with the parameter into MapToPropertyAttribute.  This will automatically parse and build the correct pathing for you.
+
 ## Custom Mapping
 
+Should an odd situation arise or you just hate using the MapToPropertyAttribute, you can specify the maps directly yourself.  Here is what the Name property would look like:
+
+```csharp
+query = QueryFilterBuilder<MyEntity, SomeFilter>.New()
+                .AddCustomMap(a => a.Name, filter.Name)
+                .Build(query, filter);
+```
+
+AddCustomMap can be chained, so you can add every filter reference by hand here and have the lamda support (no hard-coded strings).  In the end, the MapToProperty attribute is doing the same work as AddCustomMap for you.
+
+That's it!  This doesn't have any support for sub lists, so let me know if you want me to experiment with something like that!  Thanks!
