@@ -216,118 +216,78 @@ Here is the JSON representation of that previous big grouping with Name values:
       {
         "Value": "Leo",
         "IgnoreCase": false,
-        "Operator": 3
+        "Operator": "Contains"
       },
       {
         "Value": "mon",
         "IgnoreCase": false,
-        "Operator": 3
+        "Operator": "Contains"
       },
       {
         "Value": "Agumon",
         "IgnoreCase": false,
-        "Operator": 1
+        "Operator": "EqualTo"
       },
       {
         "Value": "Tort",
         "IgnoreCase": false,
-        "Operator": 3
+        "Operator": "Contains"
       },
       {
         "Value": "mon",
         "IgnoreCase": false,
-        "Operator": 3
-      }
-    ],
-    "Value": null,
-    "TotalItems": 5,
-    "CommandType": 4,
-    "FilterItems": [
-      {
-        "Value": "Leo",
-        "IgnoreCase": false,
-        "Operator": 3
-      },
-      {
-        "Value": "mon",
-        "IgnoreCase": false,
-        "Operator": 3
-      },
-      {
-        "Value": "Agumon",
-        "IgnoreCase": false,
-        "Operator": 1
-      },
-      {
-        "Value": "Tort",
-        "IgnoreCase": false,
-        "Operator": 3
-      },
-      {
-        "Value": "mon",
-        "IgnoreCase": false,
-        "Operator": 3
+        "Operator": "Contains"
       }
     ]
   },
   "HasImage": {
     "Filters": [],
-    "Value": null,
-    "TotalItems": 0,
-    "CommandType": 3,
-    "FilterItems": []
   },
   "FilterGroups": [
     {
-      "GroupType": 1,
+      "GroupType": "And",
       "FilterItems": [
         {
           "Value": "Leo",
           "IgnoreCase": false,
-          "Operator": 3
+          "Operator": "Contains"
         },
         {
           "Value": "mon",
           "IgnoreCase": false,
-          "Operator": 3
+          "Operator": "Contains"
         }
-      ],
-      "TotalItems": 2,
-      "CommandType": 1
+      ]
     },
     {
-      "GroupType": 2,
+      "GroupType": "Or",
       "FilterItems": [
         {
           "Value": "Agumon",
           "IgnoreCase": false,
-          "Operator": 1
+          "Operator": "EqualTo"
         },
         {
-          "GroupType": 1,
+          "GroupType": "And",
           "FilterItems": [
             {
               "Value": "Tort",
               "IgnoreCase": false,
-              "Operator": 3
+              "Operator": "Contains"
             },
             {
               "Value": "mon",
               "IgnoreCase": false,
-              "Operator": 3
+              "Operator": "Contains"
             }
-          ],
-          "TotalItems": 2,
-          "CommandType": 1
+          ]
         }
-      ],
-      "TotalItems": 2,
-      "CommandType": 1
+      ]
     }
   ]
 }
 }}
 ```
-One thing to note.  The Operator can use "EqualTo" instead of 1 and it parses just fine.
+One thing to note.  The Operator can use 1 instead of "EqualTo" and it parses just fine.
 
 That's it!  This doesn't have any support for sub lists, so let me know if you want me to experiment with something like that!  Thanks!
