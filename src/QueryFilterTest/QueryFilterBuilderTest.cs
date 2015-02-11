@@ -41,6 +41,14 @@ namespace QueryFilterTest
         #region << EqualTo >>
 
         [TestMethod]
+        public void StringFilter_LowerCaseValue_EqualTo_NotCaseSensitive_NotIgnoreCase_Null()
+        {
+            var filter = new StringFilter();
+            filter.Name.EqualTo(null, false);
+            StringFilterTest(filter, false, 0);
+        }
+
+        [TestMethod]
         public void StringFilter_LowerCaseValue_EqualTo_NotCaseSensitive_NotIgnoreCase()
         {
             var filter = new StringFilter();
@@ -107,6 +115,14 @@ namespace QueryFilterTest
         #endregion
 
         #region << NotEqualTo >>
+
+        [TestMethod]
+        public void StringFilter_LowerCaseValue_NotEqualTo_NotCaseSensitive_NotIgnoreCase_Null()
+        {
+            var filter = new StringFilter();
+            filter.Name.NotEqualTo(null, false);
+            StringFilterTest(filter, false, 3);
+        }
 
         [TestMethod]
         public void StringFilter_LowerCaseValue_NotEqualTo_NotCaseSensitive_NotIgnoreCase()

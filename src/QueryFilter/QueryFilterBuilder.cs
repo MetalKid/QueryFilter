@@ -30,7 +30,10 @@ namespace QueryFilter
         /// <summary>
         /// Returns a new instance of QueryFilterBuilder for convienence only.
         /// </summary>
-        /// <param name="isCaseSensitive">True if the result needs to worry about case; false otherwise.</param>
+        /// <param name="isCaseSensitive">
+        /// True if the result needs to worry about case; false otherwise.
+        /// Default - true
+        /// </param>
         /// <returns>QueryFilterBuilder.</returns>
         /// <remarks>If this call is for EF and the database doesn't care about case, then this can be false.</remarks>
         public static QueryFilterBuilder<TType, TFilter> New(bool isCaseSensitive = true)
@@ -101,9 +104,12 @@ namespace QueryFilter
         /// <summary>
         /// Constructor that initializes values.
         /// </summary>
-        /// <param name="isCaseSensitive">True if the result needs to worry about case; false otherwise.</param>
+        /// <param name="isCaseSensitive">
+        /// True if the result needs to worry about case; false otherwise. 
+        /// Default - true
+        /// </param>
         /// <remarks>If this call is for EF and the database doesn't care about case, then this can be false.</remarks>
-        public QueryFilterBuilder(bool isCaseSensitive = false)
+        public QueryFilterBuilder(bool isCaseSensitive = true)
         {
             _isCaseSensitive = isCaseSensitive;
         }
@@ -291,8 +297,7 @@ namespace QueryFilter
                 leftExpression = Expression.Call(
                     leftExpression,
                     "ToLower",
-                    new Type[0],
-                    Expression.Constant(CultureInfo.InvariantCulture, typeof (CultureInfo)));
+                    new Type[0]); // NOTE: Cannot use CultureInfo here or Entity Framework will blow up.
                 rightExpression = Expression.Constant(item.Value == null ? null : item.Value.ToLower(), typeof(string));
             }
             else
