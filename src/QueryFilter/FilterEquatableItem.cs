@@ -1,5 +1,6 @@
 ﻿#region << Usings >>
 
+using System;
 using QueryFilter.Enums;
 using QueryFilter.Interfaces;
 
@@ -15,6 +16,11 @@ namespace QueryFilter
     {
         
         #region << Properties >>
+
+        /// <summary>
+        /// Gets a key to this command in order to maintain the FilterGroup relationships after deserializing JSON.
+        /// </summary>
+        public Guid Id { get; set; }
 
         /// <summary>
         /// Gets or sets the value to filter on.
@@ -39,6 +45,7 @@ namespace QueryFilter
             T value = default(T), 
             FilterEquatableTypeEnum equatableType = FilterEquatableTypeEnum.EqualTo)
         {
+            Id = Guid.NewGuid();
             Value = value;
             Operator = equatableType;
         }

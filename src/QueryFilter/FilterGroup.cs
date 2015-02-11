@@ -1,5 +1,6 @@
 ﻿#region << Usings >>
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using QueryFilter.Enums;
@@ -30,6 +31,11 @@ namespace QueryFilter
         #endregion
 
         #region << Properties >>
+
+        /// <summary>
+        /// Gets a key to this command in order to maintain the FilterGroup relationships after deserializing JSON.
+        /// </summary>
+        public Guid Id { get; set; }
 
         /// <summary>
         /// Gets or sets the type of Group (And, Or).
@@ -68,6 +74,7 @@ namespace QueryFilter
         /// <param name="items"></param>
         public FilterGroup(FilterGroupTypeEnum groupType = FilterGroupTypeEnum.And, params IFilterItem[] items)
         {
+            Id = Guid.NewGuid();
             GroupType = groupType;
             FilterItems = items == null ? new List<IFilterItem>() : items.ToList();
         }

@@ -406,37 +406,52 @@ namespace QueryFilter
             Expression result = _expressions[items[0]].Body;
             _expressionsProcessed.Add(items[0]);
 
-            switch (group.GroupType)
+            for (int i = 1; i < items.Count; i++)
             {
-                case FilterGroupTypeEnum.Or:
-                    {
-                        for (int i = 1; i < items.Count; i++)
-                        {
-                            var fg = items[i] as FilterGroup;
-                            result = Expression.OrElse(result,
-                                fg != null ? GetExpression(fg) :
-                                             _expressions[items[i]].Body);
-                            _expressionsProcessed.Add(items[i]);
-                        }
-                        break;
-                    }
-                case FilterGroupTypeEnum.And:
-                    {
-                        for (int i = 1; i < items.Count; i++)
-                        {
-                            var fg = items[i] as FilterGroup;
-                            result = Expression.AndAlso(result,
-                                fg != null ? GetExpression(fg) :
-                                             _expressions[items[i]].Body);
-                            _expressionsProcessed.Add(items[i]);
-                        }
-                        break;
-                    }
-                default:
-                    throw new NotImplementedException(
-                        "FilterGroupTypeEnum '" + group.GroupType + "' not implemented.");
+                result = GetGroupExpession(group.GroupType, result, items[i]);
             }
 
+            return result;
+        }
+
+        /// <summary>
+        /// Builds the resulting expression for one specific Filter Item.
+        /// </summary>
+        /// <param name="groupType">The type of expression to create.</param>
+        /// <param name="result">The current query so far.</param>
+        /// <param name="item">The current Filter Item being added to the query.</param>
+        /// <returns>Expression.</returns>
+        private Expression GetGroupExpession(FilterGroupTypeEnum groupType, Expression result, IFilterItem item)
+        {
+            var fg = item as FilterGroup;
+            Expression rightExpression;
+            if (fg != null)
+            {
+                rightExpression = GetExpression(fg);
+            }
+            else
+            {
+                Expression<Func<TType, bool>> exp;
+                if (!_expressions.TryGetValue(item, out exp))
+                {
+                    exp = _expressions.Single(a => a.Key.Id == item.Id).Value;
+                }
+                rightExpression = exp.Body;
+            }
+
+            switch (groupType)
+            {
+                case FilterGroupTypeEnum.And:
+                    result = Expression.AndAlso(result, rightExpression);
+                    break;
+                case FilterGroupTypeEnum.Or:
+                    result = Expression.OrElse(result, rightExpression);
+                    break;
+                default:
+                    throw new NotImplementedException(
+                        "FilterGroupTypeEnum '" + groupType + "' not implemented.");
+            }
+            _expressionsProcessed.Add(item);
             return result;
         }
 
