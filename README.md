@@ -218,31 +218,31 @@ Here is the JSON representation of that previous big grouping with Name values:
   "Name": {
     "Filters": [
       {
-        "Id": "000000000-0000-0000-0000-000000000001"
+        "Id": "000000000-0000-0000-0000-000000000001",
         "Value": "Leo",
         "IgnoreCase": false,
         "Operator": "Contains"
       },
       {
-        "Id": "000000000-0000-0000-0000-000000000002"
+        "Id": "000000000-0000-0000-0000-000000000002",
         "Value": "mon",
         "IgnoreCase": false,
         "Operator": "Contains"
       },
       {
-        "Id": "000000000-0000-0000-0000-000000000003"
+        "Id": "000000000-0000-0000-0000-000000000003",
         "Value": "Agumon",
         "IgnoreCase": false,
         "Operator": "EqualTo"
       },
       {
-        "Id": "000000000-0000-0000-0000-000000000004"
+        "Id": "000000000-0000-0000-0000-000000000004",
         "Value": "Tort",
         "IgnoreCase": false,
         "Operator": "Contains"
       },
       {
-        "Id": "000000000-0000-0000-0000-000000000005"
+        "Id": "000000000-0000-0000-0000-000000000005",
         "Value": "mon",
         "IgnoreCase": false,
         "Operator": "Contains"
@@ -257,13 +257,13 @@ Here is the JSON representation of that previous big grouping with Name values:
       "GroupType": "And",
       "FilterItems": [
         {
-        "Id": "000000000-0000-0000-0000-000000000001"
+        "Id": "000000000-0000-0000-0000-000000000001",
           "Value": "Leo",
           "IgnoreCase": false,
           "Operator": "Contains"
         },
         {
-        "Id": "000000000-0000-0000-0000-000000000002"
+        "Id": "000000000-0000-0000-0000-000000000002",
           "Value": "mon",
           "IgnoreCase": false,
           "Operator": "Contains"
@@ -274,7 +274,7 @@ Here is the JSON representation of that previous big grouping with Name values:
       "GroupType": "Or",
       "FilterItems": [
         {
-         "Id": "000000000-0000-0000-0000-000000000003"
+         "Id": "000000000-0000-0000-0000-000000000003",
           "Value": "Agumon",
           "IgnoreCase": false,
           "Operator": "EqualTo"
@@ -283,13 +283,13 @@ Here is the JSON representation of that previous big grouping with Name values:
           "GroupType": "And",
           "FilterItems": [
             {
-             "Id": "000000000-0000-0000-0000-000000000004"
+             "Id": "000000000-0000-0000-0000-000000000004",
               "Value": "Tort",
               "IgnoreCase": false,
               "Operator": "Contains"
             },
             {
-              "Id": "000000000-0000-0000-0000-000000000005"
+              "Id": "000000000-0000-0000-0000-000000000005",
               "Value": "mon",
               "IgnoreCase": false,
               "Operator": "Contains"
