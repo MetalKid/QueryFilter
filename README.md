@@ -91,7 +91,10 @@ query = QueryFilterBuilder<MyEntity, MyFilter>.New().Build(query, filter);
 Just for laughs, here is the SQL EF produced from applying these lines of code:
 
 ```csharp
-WHERE (N'a' = [Extent1].[Name]) AND (N'9' <> [Extent1].[Name]) AND ([Extent1].[Name] LIKE N'%x%') AND ( NOT ([Extent1].[Name] LIKE N'%z%')) AND ([Extent1].[Name] LIKE N'U%') AND ( NOT ([Extent1].[Name] LIKE N'Y%')) AND ([Extent1].[Name] LIKE N'%k') AND ( NOT ([Extent1].[Name] LIKE N'%e'))
+WHERE (N'a' = [Extent1].[Name]) AND (N'9' <> [Extent1].[Name]) AND 
+([Extent1].[Name] LIKE N'%x%') AND ( NOT ([Extent1].[Name] LIKE N'%z%')) AND 
+([Extent1].[Name] LIKE N'U%') AND ( NOT ([Extent1].[Name] LIKE N'Y%')) AND 
+([Extent1].[Name] LIKE N'%k') AND ( NOT ([Extent1].[Name] LIKE N'%e'))
 ```
 
 ## FilterRange
@@ -130,7 +133,9 @@ However, if it is not nullable, the default(T) will be used instead (i.e. 0), so
 Just for laughs, here is the SQL EF produced from applying these lines of code (with nullable int in the database):
 
 ```csharp
-WHERE (1 = [Extent1].[Speed]) AND ( NOT ((0 = [Extent1].[Speed]) AND ([Extent1].[Speed] IS NOT NULL))) AND ([Extent1].[Speed] < 10) AND ([Extent1].[Speed] <= 20) AND ([Extent1].[Speed] > -6) AND ([Extent1].[Speed] >= 5)
+WHERE (1 = [Extent1].[Speed]) AND ( NOT ((0 = [Extent1].[Speed]) AND 
+([Extent1].[Speed] IS NOT NULL))) AND ([Extent1].[Speed] < 10) AND ([Extent1].[Speed] <= 20) AND 
+([Extent1].[Speed] > -6) AND ([Extent1].[Speed] >= 5)
 ```
 
 ## FilterEquatable
@@ -153,7 +158,8 @@ query = QueryFilterBuilder<MyEntity, MyFilter>.New().Build(query, filter);
 Just for laughs, here is the SQL EF produced from applying these lines of code (with nullable bit in the database):
 
 ```csharp
-WHERE (1 = [Extent1].[HasImage]) AND ( NOT ((0 = [Extent1].[HasImage]) AND ([Extent1].[HasImage] IS NOT NULL)))
+WHERE (1 = [Extent1].[HasImage]) AND ( NOT ((0 = [Extent1].[HasImage]) AND 
+([Extent1].[HasImage] IS NOT NULL)))
 ```
 
 ## Filtering on String Length
@@ -199,7 +205,8 @@ This reads: (Leo and Mon) Or (Agumon Or (Tort And Mon)).
 Here is the SQL it produces:
 
 ```csharp
-WHERE (([Extent1].[Name] LIKE N'%Leo%') AND ([Extent1].[Name] LIKE N'%mon%')) OR (N'Agumon' = [Extent1].[Name]) OR (([Extent1].[Name] LIKE N'%Tort%') AND ([Extent1].[Name] LIKE N'%mon%'))
+WHERE (([Extent1].[Name] LIKE N'%Leo%') AND ([Extent1].[Name] LIKE N'%mon%')) OR 
+(N'Agumon' = [Extent1].[Name]) OR (([Extent1].[Name] LIKE N'%Tort%') AND ([Extent1].[Name] LIKE N'%mon%'))
 ```
 
 Each new group at the top level determines the And/Or to come before it along with its siblings.  If you needed an And outside and Or inside, you'd have to do a double FilterGroup.New() with the corresponding FilterGroupTypeEnum values.  Here is how that would look:
@@ -229,7 +236,8 @@ Each new group at the top level determines the And/Or to come before it along wi
 Here is the SQL it produces:
 
 ```csharp
-WHERE (([Extent1].[Name] LIKE N'%Leo%') AND ([Extent1].[Name] LIKE N'%mon%')) AND (N'Agumon' = [Extent1].[Name]) OR (([Extent1].[Name] LIKE N'%Tort%') AND ([Extent1].[Name] LIKE N'%mon%'))
+WHERE (([Extent1].[Name] LIKE N'%Leo%') AND ([Extent1].[Name] LIKE N'%mon%')) AND 
+(N'Agumon' = [Extent1].[Name]) OR (([Extent1].[Name] LIKE N'%Tort%') AND ([Extent1].[Name] LIKE N'%mon%'))
 ```
 
 In order to figure out if a filter has any groups, it must implement the IFilterGroup interface.  Otherwise, I have no other way of pulling in groups since they are stored at the filter level in one place across all properties.  You don't have to stick to the same Filter type when Or/Anding them together.
