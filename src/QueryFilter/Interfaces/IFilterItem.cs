@@ -14,6 +14,6 @@ namespace QueryFilter.Interfaces
         /// <summary>
         /// Gets a key to this command in order to maintain the FilterGroup relationships after deserializing JSON.
         /// </summary>
-        Guid Id { get; }
+        string Id { get; }
     }
 }

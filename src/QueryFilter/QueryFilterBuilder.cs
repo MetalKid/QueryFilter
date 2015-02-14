@@ -170,6 +170,10 @@ namespace QueryFilter
                 {
                     body = Expression.PropertyOrField(body, member);
                 }
+                if (body.Type == typeof(string) && !(command is FilterString))
+                {
+                    body = Expression.Property(body, "Length");
+                }
 
                 var leftExpression = body;
 
@@ -186,11 +190,17 @@ namespace QueryFilter
                             .Invoke(this, new object[] {entityParam, leftExpression, item});
                         break;
                     case FilterCommandTypeEnum.Range:
+                        var property = typeof (TType).GetProperty(entityPropertyName);
+                        if (property.PropertyType == typeof(string))
+                        {
+                            property = property.PropertyType.GetProperty("Length");
+                        }
+
                         GetType()
                            .GetMethod(
                                "CreateFilterRangeExpression",
                                BindingFlags.NonPublic | BindingFlags.Instance)
-                           .MakeGenericMethod(item.GetType().GetGenericArguments()[0], typeof(TType).GetProperty(entityPropertyName).PropertyType)
+                           .MakeGenericMethod(item.GetType().GetGenericArguments()[0], property.PropertyType)
                            .Invoke(this, new object[] { entityParam, leftExpression, item });
                         break;
                     case FilterCommandTypeEnum.String:
@@ -240,13 +250,14 @@ namespace QueryFilter
             FilterRangeItem<T> item)
             where T: struct
         {
+            Expression rightExpression;
             bool isPropertyNullable =
-                typeof(TProperty).IsAssignableFrom(typeof(Nullable<>).MakeGenericType(typeof(T)));
+                typeof (TProperty).IsAssignableFrom(typeof (Nullable<>).MakeGenericType(typeof (T)));
 
-            Expression rightExpression = Expression.Constant(
-                      isPropertyNullable ? item.Value : item.NonNullableValue,
-                      typeof(TProperty));
-
+            rightExpression = Expression.Constant(
+                isPropertyNullable ? item.Value : item.NonNullableValue,
+                typeof (TProperty));
+            
             Expression checkExp;
             switch (item.Operator)
             {
@@ -403,8 +414,22 @@ namespace QueryFilter
         private Expression GetExpression(FilterGroup group)
         {
             var items = group.FilterItems;
-            Expression result = _expressions[items[0]].Body;
-            _expressionsProcessed.Add(items[0]);
+            Expression result;
+            var fgCheck = items[0] as FilterGroup;
+            if (fgCheck != null)
+            {
+                result = GetExpression(fgCheck);
+            }
+            else
+            {
+                Expression<Func<TType, bool>> exp;
+                if (!_expressions.TryGetValue(items[0], out exp))
+                {
+                    exp = _expressions.Single(a => a.Key.Id == items[0].Id).Value;
+                }
+                _expressionsProcessed.Add(items[0]);
+                result = exp.Body;
+            }
 
             for (int i = 1; i < items.Count; i++)
             {

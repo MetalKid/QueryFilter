@@ -20,7 +20,7 @@ namespace QueryFilter
         /// <summary>
         /// Gets a key to this command in order to maintain the FilterGroup relationships after deserializing JSON.
         /// </summary>
-        public Guid Id { get; set; }
+        public string Id { get; set; }
 
         /// <summary>
         /// Gets or sets the value to filter on.
@@ -45,7 +45,7 @@ namespace QueryFilter
             T value = default(T), 
             FilterEquatableTypeEnum equatableType = FilterEquatableTypeEnum.EqualTo)
         {
-            Id = Guid.NewGuid();
+            Id = Guid.NewGuid().ToString();
             Value = value;
             Operator = equatableType;
         }

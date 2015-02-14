@@ -41,6 +41,31 @@ namespace QueryFilterTest
         #region << EqualTo >>
 
         [TestMethod]
+        public void StringFilter_Length_EqualTo()
+        {
+            // Arrange
+            IList<StringEntity> entities = new List<StringEntity>()
+            {
+                new StringEntity {Name = "A"},
+                new StringEntity {Name = "B"},
+                new StringEntity {Name = "C"},
+            };
+            var input = entities.AsQueryable();
+            var filter = new StringFilter();
+            filter.NameLength.EqualTo(1);
+
+            // Act
+            var results =
+                QueryFilterBuilder<StringEntity, StringFilter>.New()
+                    //.AddCustomMap(a => a.Name, filter.NameLength)
+                    .Build(input, filter).ToList();
+
+            // Assert
+            Assert.AreEqual(3, results.Count, "Only 3 item(s) was/were expected.");
+
+        }
+
+        [TestMethod]
         public void StringFilter_LowerCaseValue_EqualTo_NotCaseSensitive_NotIgnoreCase_Null()
         {
             var filter = new StringFilter();
@@ -909,6 +934,40 @@ namespace QueryFilterTest
             // Assert
             Assert.AreEqual(1, results.Count, "Only 1 item was expected.");
         }
+
+        [TestMethod]
+        public void ComplexFilter2_Grouping()
+        {
+            // Arrange
+            IList<ComplexEntity> entities = new List<ComplexEntity>()
+            {
+                new ComplexEntity {Test = "A", Entity = new ComplexEntity2 { A = "1"}},
+                new ComplexEntity {Test = "B", Entity = new ComplexEntity2 { A = "2"}},
+                new ComplexEntity {Test = "C", Entity = new ComplexEntity2 { A = "3"}},
+            };
+            var input = entities.AsQueryable();
+            var filter = new ComplexFilter2();
+            filter.AddGroup(
+                FilterGroup.New(
+                    FilterGroupTypeEnum.And, 
+                    filter.Test.EqualTo("A"), 
+                    filter.Test.NotEqualTo("C")),
+                    FilterGroup.New(
+                        FilterGroupTypeEnum.Or,
+                        FilterGroup.New(
+                            FilterGroupTypeEnum.And,
+                            filter.Test.EqualTo("B")
+                        ))
+                );
+
+            // Act
+            var results = QueryFilterBuilder<ComplexEntity, ComplexFilter2>.New()
+                .Build(input, filter).ToList();
+
+            // Assert
+            Assert.AreEqual(2, results.Count, "Only 2 item was expected.");
+        }
+
         #endregion
 
         #region << Private Classes >>
@@ -936,7 +995,7 @@ namespace QueryFilterTest
                 A = new FilterString();
             }
         }
-        private class ComplexFilter2
+        private class ComplexFilter2 : IFilterGroup
         {
             [MapToProperty]
             public FilterString Test { get; set; }
@@ -944,11 +1003,23 @@ namespace QueryFilterTest
             [MapToProperty("Entity.A")]
             public FilterString A { get; set; }
 
+            public IList<FilterGroup> FilterGroups { get; set; }
+
             public ComplexFilter2()
             {
                 Test = new FilterString();
                 A = new FilterString();
+                FilterGroups = new List<FilterGroup>();
             }
+
+            public void AddGroup(params FilterGroup[] groups)
+            {
+                foreach (var item in groups)
+                {
+                    FilterGroups.Add(item);
+                }
+            }
+
         }
         private class CustomMapEntity
         {
@@ -1038,9 +1109,13 @@ namespace QueryFilterTest
             [MapToProperty]
             public FilterString Name { get; set; }
 
+            [MapToProperty("Name")]
+            public FilterRange<int> NameLength { get; set; }
+
             public StringFilter()
             {
                 Name = new FilterString();
+                NameLength = new FilterRange<int>();
             }
         }
 
