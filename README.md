@@ -91,9 +91,7 @@ query = QueryFilterBuilder<MyEntity, MyFilter>.New().Build(query, filter);
 Just for laughs, here is the SQL EF produced from applying these lines of code:
 
 ```csharp
-WHERE (N'a' = [Extent1].[Name]) AND (N'9' <> [Extent1].[Name]) AND ([Extent1].[Name] LIKE N'%x%') AND ( NOT ([Extent1].[Name]
-LIKE N'%z%')) AND ([Extent1].[Name] LIKE N'U%') AND ( NOT ([Extent1].[Name] LIKE N'Y%')) AND ([Extent1].[Name] LIKE N'%k')
-AND ( NOT ([Extent1].[Name] LIKE N'%e'))
+WHERE (N'a' = [Extent1].[Name]) AND (N'9' <> [Extent1].[Name]) AND ([Extent1].[Name] LIKE N'%x%') AND ( NOT ([Extent1].[Name] LIKE N'%z%')) AND ([Extent1].[Name] LIKE N'U%') AND ( NOT ([Extent1].[Name] LIKE N'Y%')) AND ([Extent1].[Name] LIKE N'%k') AND ( NOT ([Extent1].[Name] LIKE N'%e'))
 ```
 
 ## FilterRange
@@ -132,8 +130,7 @@ However, if it is not nullable, the default(T) will be used instead (i.e. 0), so
 Just for laughs, here is the SQL EF produced from applying these lines of code (with nullable int in the database):
 
 ```csharp
-WHERE (1 = [Extent1].[Speed]) AND ( NOT ((0 = [Extent1].[Speed]) AND ([Extent1].[Speed] IS NOT NULL))) AND ([Extent1].[Speed]
-< 10) AND ([Extent1].[Speed] <= 20) AND ([Extent1].[Speed] > -6) AND ([Extent1].[Speed] >= 5)
+WHERE (1 = [Extent1].[Speed]) AND ( NOT ((0 = [Extent1].[Speed]) AND ([Extent1].[Speed] IS NOT NULL))) AND ([Extent1].[Speed] < 10) AND ([Extent1].[Speed] <= 20) AND ([Extent1].[Speed] > -6) AND ([Extent1].[Speed] >= 5)
 ```
 
 ## FilterEquatable
@@ -159,36 +156,80 @@ Just for laughs, here is the SQL EF produced from applying these lines of code (
 WHERE (1 = [Extent1].[HasImage]) AND ( NOT ((0 = [Extent1].[HasImage]) AND ([Extent1].[HasImage] IS NOT NULL)))
 ```
 
+## Filtering on String Length
+To filter on the length of a string, you'll need to do something slightly different.  In the filter, you need to define a FilterRange<int> for the length check.  However, you will then need to have the MapToProperty (or custom map) point to the string property.  i.e.:
+
+```csharp
+public class SomeFilter
+{
+   [MapToProperty]
+   public FilterString Name { get; set; }
+
+   [MapToProperty("Name")]
+   public FilterRange<int> NameLength { get; set; }
+}
+```
+Then you just treat the NameLength check as you would any other FilterRange!
+
 ## FilterGroup and IFilterGroup
 
 FilterGroups are how you can mix ORs, ANDs, and groups ( ) into your queries.  I added a helper method called "AddGroups" that took a param array of FilterGroup.  Here are a few examples:
 
 ```csharp
-filter.AddGroups(
-    FilterGroup.New(
-        FilterGroupTypeEnum.And,
-        filter.Name.Contains("Leo"),
-        filter.Name.Contains("mon")
-    ),
-    FilterGroup.New(
-        FilterGroupTypeEnum.Or,
-        filter.Name.EqualTo("Agumon"),
-        FilterGroup.New(
-            FilterGroupTypeEnum.And,
-            filter.Name.Contains("Tort"),
-            filter.Name.Contains("mon")
-        )
-    )
-);
+            filter.AddGroups(
+                FilterGroup.New(
+                    FilterGroupTypeEnum.And,
+                    filter.Name.Contains("Leo"),
+                    filter.Name.Contains("mon")
+                ),
+                FilterGroup.New(
+                    FilterGroupTypeEnum.Or,
+                    filter.Name.EqualTo("Agumon"),
+                    FilterGroup.New(
+                        FilterGroupTypeEnum.And,
+                        filter.Name.Contains("Tort"),
+                        filter.Name.Contains("mon")
+                    )
+                )
+            );
 ```
 
-This reads: (Leo and Mon) Or (Agumon Or (Tort And Mon)).  Each new group at the top level determines the And/Or to come before it along with its siblings.  If you needed an And outside and Or inside, you'd have to do a Double FilterGroup.New() with the corresponding FilterGroupTypeEnum values.
+This reads: (Leo and Mon) Or (Agumon Or (Tort And Mon)).  
 
 Here is the SQL it produces:
 
 ```csharp
-WHERE (([Extent1].[Name] LIKE N'%Leo%') AND ([Extent1].[Name] LIKE N'%mon%')) OR (N'Agumon' = [Extent1].[Name]) OR
-(([Extent1].[Name] LIKE N'%Tort%') AND ([Extent1].[Name] LIKE N'%mon%'))
+WHERE (([Extent1].[Name] LIKE N'%Leo%') AND ([Extent1].[Name] LIKE N'%mon%')) OR (N'Agumon' = [Extent1].[Name]) OR (([Extent1].[Name] LIKE N'%Tort%') AND ([Extent1].[Name] LIKE N'%mon%'))
+```
+
+Each new group at the top level determines the And/Or to come before it along with its siblings.  If you needed an And outside and Or inside, you'd have to do a double FilterGroup.New() with the corresponding FilterGroupTypeEnum values.  Here is how that would look:
+
+```csharp
+            filter.AddGroups(
+                FilterGroup.New(
+                    FilterGroupTypeEnum.And,
+                    filter.Name.Contains("Leo"),
+                    filter.Name.Contains("mon")
+                ),
+                FilterGroup.New(
+                    FilterGroupTypeEnum.And,
+                    FilterGroup.New(
+                       FilterGroupTypeEnum.Or,
+                       filter.Name.EqualTo("Agumon"),
+                       FilterGroup.New(
+                           FilterGroupTypeEnum.And,
+                           filter.Name.Contains("Tort"),
+                           filter.Name.Contains("mon")
+                       )
+                    )
+                )
+            );
+```
+
+Here is the SQL it produces:
+
+```csharp
+WHERE (([Extent1].[Name] LIKE N'%Leo%') AND ([Extent1].[Name] LIKE N'%mon%')) AND (N'Agumon' = [Extent1].[Name]) OR (([Extent1].[Name] LIKE N'%Tort%') AND ([Extent1].[Name] LIKE N'%mon%'))
 ```
 
 In order to figure out if a filter has any groups, it must implement the IFilterGroup interface.  Otherwise, I have no other way of pulling in groups since they are stored at the filter level in one place across all properties.  You don't have to stick to the same Filter type when Or/Anding them together.
@@ -202,7 +243,7 @@ If you have a situation where you want to filter on another table from the same 
 Should an odd situation arise or you just hate using the MapToPropertyAttribute, you can specify the maps directly yourself.  Here is what the Name property would look like:
 
 ```csharp
-query = QueryFilterBuilder<MyEntity, MyFilter>.New()
+query = QueryFilterBuilder<MyEntity, SomeFilter>.New()
                 .AddCustomMap(a => a.Name, filter.Name)
                 .Build(query, filter);
 ```
@@ -218,31 +259,31 @@ Here is the JSON representation of that previous big grouping with Name values:
   "Name": {
     "Filters": [
       {
-        "Id": "000000000-0000-0000-0000-000000000001",
+        "Id": "1",
         "Value": "Leo",
         "IgnoreCase": false,
         "Operator": "Contains"
       },
       {
-        "Id": "000000000-0000-0000-0000-000000000002",
+        "Id": "2",
         "Value": "mon",
         "IgnoreCase": false,
         "Operator": "Contains"
       },
       {
-        "Id": "000000000-0000-0000-0000-000000000003",
+        "Id": "3",
         "Value": "Agumon",
         "IgnoreCase": false,
         "Operator": "EqualTo"
       },
       {
-        "Id": "000000000-0000-0000-0000-000000000004",
+        "Id": "4",
         "Value": "Tort",
         "IgnoreCase": false,
         "Operator": "Contains"
       },
       {
-        "Id": "000000000-0000-0000-0000-000000000005",
+        "Id": "5",
         "Value": "mon",
         "IgnoreCase": false,
         "Operator": "Contains"
@@ -257,13 +298,13 @@ Here is the JSON representation of that previous big grouping with Name values:
       "GroupType": "And",
       "FilterItems": [
         {
-        "Id": "000000000-0000-0000-0000-000000000001",
+        "Id": "1",
           "Value": "Leo",
           "IgnoreCase": false,
           "Operator": "Contains"
         },
         {
-        "Id": "000000000-0000-0000-0000-000000000002",
+        "Id": "2",
           "Value": "mon",
           "IgnoreCase": false,
           "Operator": "Contains"
@@ -274,7 +315,7 @@ Here is the JSON representation of that previous big grouping with Name values:
       "GroupType": "Or",
       "FilterItems": [
         {
-         "Id": "000000000-0000-0000-0000-000000000003",
+         "Id": "3",
           "Value": "Agumon",
           "IgnoreCase": false,
           "Operator": "EqualTo"
@@ -283,13 +324,13 @@ Here is the JSON representation of that previous big grouping with Name values:
           "GroupType": "And",
           "FilterItems": [
             {
-             "Id": "000000000-0000-0000-0000-000000000004",
+             "Id": "4",
               "Value": "Tort",
               "IgnoreCase": false,
               "Operator": "Contains"
             },
             {
-              "Id": "000000000-0000-0000-0000-000000000005",
+              "Id": "5",
               "Value": "mon",
               "IgnoreCase": false,
               "Operator": "Contains"
@@ -300,8 +341,9 @@ Here is the JSON representation of that previous big grouping with Name values:
     }
   ]
 }
-}}
 ```
+
 One thing to note.  The Operator can use 1 instead of "EqualTo" and it parses just fine.
 
 That's it!  This doesn't have any support for sub lists, so let me know if you want me to experiment with something like that!  Thanks!
+
