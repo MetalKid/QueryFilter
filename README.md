@@ -32,6 +32,10 @@ query = QueryFilterBuilder<MyEntity, SomeFilter>.New().Build(query, filter);
 
 Done! 
 
+## MapToPropertyAttribute
+
+In order to determine which property a filter is for on the entity side, the MapToProperty attribute is used.  If no value is provided, QueryFilter assumes the name of the property on the filter is the same name on the entity.  Otherwise, you can pass in a string name of the entity to map to.  If you have a complex property (i.e. Parent.Child.A), then you could pass in "Child.A" and the path will be parsed for you.  If you have some sort of complex scenario, then you can use the AddCustomMapping call discussed later on.
+
 ## Custom Mapping
 
 Should an odd situation arise or you just hate using the MapToPropertyAttribute, you can specify the maps directly yourself.  Here is what the Name property would look like:
@@ -48,10 +52,6 @@ AddCustomMap can be chained, so you can add every filter reference by hand here 
 ## Initializing FilterString/Range/Equatable
 
 Unfortunately, I haven't come up with a good way around being forced to new up each filter property in the constructor before you start using it.  If someone has a clever idea, I'm all ears! In the meantime, you will just have to new up each property you declare in the constructor.  (Note: Making these a struct won't work because they all store a list of FilterItems internally...)
-
-## MapToPropertyAttribute
-
-In order to determine which property a filter is for on the entity side, the MapToProperty attribute is used.  If no value is provided, QueryFilter assumes the name of the property on the filter is the same name on the entity.  Otherwise, you can pass in a string name of the entity to map to.  If you have a complex property (i.e. Parent.Child.A), then you could pass in "Child.A" and the path will be parsed for you.  If you have some sort of complex scenario, then you can use the AddCustomMapping call discussed later on.
 
 ```csharp
 public class MyFilter
