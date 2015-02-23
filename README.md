@@ -32,6 +32,19 @@ query = QueryFilterBuilder<MyEntity, SomeFilter>.New().Build(query, filter);
 
 Done! 
 
+## Custom Mapping
+
+Should an odd situation arise or you just hate using the MapToPropertyAttribute, you can specify the maps directly yourself.  Here is what the Name property would look like:
+
+```csharp
+query = QueryFilterBuilder<MyEntity, SomeFilter>.New()
+                .AddCustomMap(a => a.Name, filter.Name)
+                .Build(query, filter);
+```
+
+AddCustomMap can be chained, so you can add every filter reference by hand here and have the lamda support (no hard-coded strings).  In the end, the MapToProperty attribute is doing the same work as AddCustomMap for you.
+
+
 ## Initializing FilterString/Range/Equatable
 
 Unfortunately, I haven't come up with a good way around being forced to new up each filter property in the constructor before you start using it.  If someone has a clever idea, I'm all ears! In the meantime, you will just have to new up each property you declare in the constructor.  (Note: Making these a struct won't work because they all store a list of FilterItems internally...)
@@ -245,18 +258,6 @@ In order to figure out if a filter has any groups, it must implement the IFilter
 ## Complex Types
 
 If you have a situation where you want to filter on another table from the same filter, you can use the "Child.Property" syntax with the parameter into MapToPropertyAttribute.  This will automatically parse and build the correct pathing for you.
-
-## Custom Mapping
-
-Should an odd situation arise or you just hate using the MapToPropertyAttribute, you can specify the maps directly yourself.  Here is what the Name property would look like:
-
-```csharp
-query = QueryFilterBuilder<MyEntity, SomeFilter>.New()
-                .AddCustomMap(a => a.Name, filter.Name)
-                .Build(query, filter);
-```
-
-AddCustomMap can be chained, so you can add every filter reference by hand here and have the lamda support (no hard-coded strings).  In the end, the MapToProperty attribute is doing the same work as AddCustomMap for you.
 
 ## JSON
 
