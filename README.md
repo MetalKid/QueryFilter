@@ -306,16 +306,10 @@ Here is the JSON representation of that previous big grouping with Name values:
       "GroupType": "And",
       "FilterItems": [
         {
-        "Id": "1",
-          "Value": "Leo",
-          "IgnoreCase": false,
-          "Operator": "Contains"
+        "Id": "1"
         },
         {
-        "Id": "2",
-          "Value": "mon",
-          "IgnoreCase": false,
-          "Operator": "Contains"
+        "Id": "2"
         }
       ]
     },
@@ -323,25 +317,16 @@ Here is the JSON representation of that previous big grouping with Name values:
       "GroupType": "Or",
       "FilterItems": [
         {
-         "Id": "3",
-          "Value": "Agumon",
-          "IgnoreCase": false,
-          "Operator": "EqualTo"
+         "Id": "3"
         },
         {
           "GroupType": "And",
           "FilterItems": [
             {
-             "Id": "4",
-              "Value": "Tort",
-              "IgnoreCase": false,
-              "Operator": "Contains"
+             "Id": "4"
             },
             {
-              "Id": "5",
-              "Value": "mon",
-              "IgnoreCase": false,
-              "Operator": "Contains"
+              "Id": "5"
             }
           ]
         }
