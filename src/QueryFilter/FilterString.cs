@@ -81,7 +81,33 @@ namespace QueryFilter
 
         #endregion
 
+        #region << Operators >>
+
+        /// <summary>
+        /// Defaults to the EqualTo clause for the given value.
+        /// </summary>
+        /// <param name="value">The value to perform an equals on</param>
+        /// <returns>New instance of FilterString.</returns>
+        public static implicit operator FilterString(string value)
+        {
+            return new FilterString(value);
+        }
+
+        #endregion
+
         #region << Public Methods >>
+
+        /// <summary>
+        /// Merges another FilterString into this one.
+        /// </summary>
+        /// <param name="fs">The FilterString to merge into this one.</param>
+        public void Merge(FilterString fs)
+        {
+            foreach (var filter in fs.Filters)
+            {
+                Filters.Add(filter);
+            }
+        }
 
         /// <summary>
         /// Adds a new value to filter on with an EqualTo check and returns this object.

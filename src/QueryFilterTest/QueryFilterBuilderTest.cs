@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web.Script.Serialization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using QueryFilter;
 using QueryFilter.Attributes;
@@ -41,6 +42,28 @@ namespace QueryFilterTest
         #region << EqualTo >>
 
         [TestMethod]
+        public void StringFilter_ImplicitAssignment_EqualTo_JSON()
+        {
+            // Arrange
+            IList<StringEntity> entities = new List<StringEntity>()
+            {
+                new StringEntity {Name = "A"},
+                new StringEntity {Name = "B"},
+                new StringEntity {Name = "C"},
+            };
+            var input = entities.AsQueryable();
+            StringFilter filter = new JavaScriptSerializer().Deserialize<StringFilter>("{ Name: { Value: 'A'} }");
+
+            // Act
+            var results =
+                QueryFilterBuilder<StringEntity, StringFilter>.New()
+                    .Build(input, filter).ToList();
+
+            // Assert
+            Assert.AreEqual(1, results.Count, "Only 1 item(s) was/were expected.");
+        }
+
+        [TestMethod]
         public void StringFilter_Length_EqualTo()
         {
             // Arrange
@@ -63,6 +86,29 @@ namespace QueryFilterTest
             // Assert
             Assert.AreEqual(3, results.Count, "Only 3 item(s) was/were expected.");
 
+        }
+
+        [TestMethod]
+        public void StringFilter_Merge_0()
+        {
+            var filter = new StringFilter { Name = "A" };
+            filter.Name.Merge(new FilterString("B"));
+            StringFilterTest(filter, false, 0);
+        }
+
+        [TestMethod]
+        public void StringFilter_Merge_1()
+        {
+            var filter = new StringFilter();
+            filter.Name.Merge(new FilterString("B"));
+            StringFilterTest(filter, false, 1);
+        }
+
+        [TestMethod]
+        public void StringFilter_ExplicitOperator()
+        {
+            var filter = new StringFilter { Name = "A"};
+            StringFilterTest(filter, false, 1);
         }
 
         [TestMethod]
@@ -649,6 +695,29 @@ namespace QueryFilterTest
         #region << EqualTo >>
 
         [TestMethod]
+        public void EquatableFilter_Merge_0()
+        {
+            var filter = new EquatableFilter { Test = true };
+            filter.Test.Merge(new FilterEquatable<bool>(false));
+            EquatableFilterTest(filter, 0);
+        }
+
+        [TestMethod]
+        public void EquatableFilterMerge_1()
+        {
+            var filter = new EquatableFilter();
+            filter.Test.Merge(new FilterEquatable<bool>(false));
+            EquatableFilterTest(filter, 2);
+        }
+
+        [TestMethod]
+        public void EquatableFilter_ExplictOperator()
+        {
+            var filter = new EquatableFilter { Test = true };
+            EquatableFilterTest(filter, 1);
+        }
+
+        [TestMethod]
         public void EquatableFilter_EqualTo_True()
         {
             var filter = new EquatableFilter();
@@ -710,6 +779,29 @@ namespace QueryFilterTest
         }
 
         #region << EqualTo >>
+
+        [TestMethod]
+        public void RangeFilter_Merge_0()
+        {
+            var filter = new RangeFilter { Test = 1 };
+            filter.Test.Merge(new FilterRange<int>(2));
+            RangeFilterTest(filter, 0);
+        }
+
+        [TestMethod]
+        public void RangeFilterMerge_1()
+        {
+            var filter = new RangeFilter();
+            filter.Test.Merge(new FilterRange<int>(2));
+            RangeFilterTest(filter, 1);
+        }
+
+        [TestMethod]
+        public void RangeFilter_ExplicitOperator_1()
+        {
+            var filter = new RangeFilter { Test = 1 };
+            RangeFilterTest(filter, 1);
+        }
 
         [TestMethod]
         public void RangeFilter_EqualTo_1()
@@ -1104,6 +1196,7 @@ namespace QueryFilterTest
         {
             public string Name { get; set; }
         }
+        
         private class StringFilter
         {
             [MapToProperty]

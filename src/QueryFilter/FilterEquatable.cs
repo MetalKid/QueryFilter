@@ -83,7 +83,33 @@ namespace QueryFilter
 
         #endregion
 
+        #region << Operators >>
+
+        /// <summary>
+        /// Defaults to the EqualTo clause for the given value.
+        /// </summary>
+        /// <param name="value">The value to perform an equals on</param>
+        /// <returns>New instance of FilterEquatable.</returns>
+        public static implicit operator FilterEquatable<T>(T value)
+        {
+            return new FilterEquatable<T>(value);
+        }
+
+        #endregion
+
         #region << Public Methods >>
+
+        /// <summary>
+        /// Merges another FilterEquatable into this one.
+        /// </summary>
+        /// <param name="fe">The FilterEquatable to merge into this one.</param>
+        public void Merge(FilterEquatable<T> fe)
+        {
+            foreach (var filter in fe.Filters)
+            {
+                Filters.Add(filter);
+            }
+        }
 
         /// <summary>
         /// Adds a new value to filter on with an EqualTo check and returns this object.
